@@ -8,7 +8,7 @@ public class GenericQueue<T> {
 	}
 
 	public void enqueue(T newEntry) {
-		Node newNode = new Node<T>(newEntry, null);
+		Node<T> newNode = new Node<T>(newEntry, null);
 
 		if (isEmpty()) {
 			firstNode = newNode;
@@ -45,6 +45,43 @@ public class GenericQueue<T> {
 	public void clear() {
 		firstNode = null;
 		lastNode = null;
+	}
+
+	public void display() {
+		if (isEmpty()) {
+			System.out.println("Queue is empty");
+			return;
+		}
+
+		Node<T> current = firstNode;
+		int index = 1;
+		while (current != null) {
+			System.out.println(index + ". " + current.getData());
+			current = current.getNext();
+			index++;
+		}
+	}
+
+	public T[] getAll() {
+		if (isEmpty()) {
+			return (T[]) new Object[0];
+		}
+
+		int size = 0;
+		Node<T> current = firstNode;
+		while (current != null) {
+			size++;
+			current = current.getNext();
+		}
+
+		T[] array = (T[]) new Object[size];
+		current = firstNode;
+		for (int i = 0; i < size; i++) {
+			array[i] = current.getData();
+			current = current.getNext();
+		}
+
+		return array;
 	}
 
 	private class Node<T> {
