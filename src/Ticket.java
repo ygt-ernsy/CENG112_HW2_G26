@@ -1,27 +1,34 @@
-
 public class Ticket implements Comparable<Ticket> {
+	private String customerName;
+	private String issueDescription;
+	private String priority;
+	private long arrivalTime;
 
-	String customerName;
-	String issueDescription;
-	String priority;
-	int arrivalTime;
-
-	public int compareTo(Ticket otherTicket) {
-
-		int thisPriorityLevel = getPriorityValue(this.priority);
-		int otherPriorityLevel = getPriorityValue(otherTicket.getPriority());
-
-		int comparison = Integer.compare(thisPriorityLevel, otherPriorityLevel);
-
-		if (comparison != 0) {
-			return comparison;
-		}
-
-		return Integer.compare(this.arrivalTime, otherTicket.getArrivalTime());
+	public Ticket(String customerName, String issueDescription, String priority) {
+		this.customerName = customerName;
+		this.issueDescription = issueDescription;
+		this.priority = priority;
+		this.arrivalTime = System.currentTimeMillis();
 	}
 
-	private int getPriorityValue(String pString) {
-		switch (pString.toLowerCase()) {
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public String getIssueDescription() {
+		return issueDescription;
+	}
+
+	public String getPriority() {
+		return priority;
+	}
+
+	public long getArrivalTime() {
+		return arrivalTime;
+	}
+
+	private int getPriorityValue() {
+		switch (priority.toLowerCase()) {
 			case "high":
 				return 3;
 			case "medium":
@@ -33,15 +40,17 @@ public class Ticket implements Comparable<Ticket> {
 		}
 	}
 
-	public String getPriority() {
-		return priority;
+	@Override
+	public int compareTo(Ticket other) {
+		int priorityComparison = Integer.compare(other.getPriorityValue(), this.getPriorityValue());
+		if (priorityComparison != 0) {
+			return priorityComparison;
+		}
+		return Long.compare(this.arrivalTime, other.arrivalTime);
 	}
 
-	public int getArrivalTime() {
-		return arrivalTime;
-	}
-
+	@Override
 	public String toString() {
-		return customerName + '-' + issueDescription + '-' + '[' + priority + ']';
+		return customerName + " - " + issueDescription + " [" + priority + "]";
 	}
 }

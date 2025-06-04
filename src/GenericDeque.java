@@ -1,113 +1,108 @@
 public class GenericDeque<T> {
-	private DLNode firsNode;
-	private DLNode lasNode;
+	private Node head;
+	private Node tail;
+	private int size;
+
+	private class Node {
+		T data;
+		Node next;
+		Node prev;
+
+		Node(T data) {
+			this.data = data;
+			this.next = null;
+			this.prev = null;
+		}
+	}
 
 	public GenericDeque() {
-		firsNode = null;
-		lasNode = null;
+		this.head = null;
+		this.tail = null;
+		this.size = 0;
 	}
 
-	public void addToBack(T newEntry) {
-		DLNode newNode = new DLNode(newEntry, lasNode);
-
-		if (isEmpty())
-			firsNode = newNode;
-		else
-			lasNode.setNextNode(newNode);
-
-		lasNode = newNode;
+	public void addFront(T item) {
+		Node newNode = new Node(item);
+		if (isEmpty()) {
+			head = tail = newNode;
+		} else {
+			newNode.next = head;
+			head.prev = newNode;
+			head = newNode;
+		}
+		size++;
 	}
 
-	public void addToFront(T newEntry) {
-		DLNode newNode = new DLNode(newEntry, null, firsNode);
-
-		if (isEmpty())
-			firsNode = newNode;
-		else
-			firsNode.setPreviousNode(newNode);
-
-		firsNode = newNode;
+	public void addBack(T item) {
+		Node newNode = new Node(item);
+		if (isEmpty()) {
+			head = tail = newNode;
+		} else {
+			tail.next = newNode;
+			newNode.prev = tail;
+			tail = newNode;
+		}
+		size++;
 	}
 
 	public T removeFront() {
-		T front = firsNode.getData();
-
-		assert firsNode != null;
-
-		firsNode = firsNode.getNextNode();
-
-		if (firsNode == null)
-			lasNode = null;
-		else
-			firsNode.setPreviousNode(null);
-
-		return front;
+		if (isEmpty()) {
+			return null;
+		}
+		T data = head.data;
+		head = head.next;
+		if (head != null) {
+			head.prev = null;
+		} else {
+			tail = null;
+		}
+		size--;
+		return data;
 	}
 
 	public T removeBack() {
-		T back = lasNode.getData();
-
-		assert lasNode != null;
-
-		lasNode = lasNode.getPreviousNode();
-
-		if (lasNode == null)
-			firsNode = null;
-		else
-			lasNode.setNextNode(null);
-
-		return back;
+		if (isEmpty()) {
+			return null;
+		}
+		T data = tail.data;
+		tail = tail.prev;
+		if (tail != null) {
+			tail.next = null;
+		} else {
+			head = null;
+		}
+		size--;
+		return data;
 	}
 
 	public boolean isEmpty() {
-		return firsNode == null && lasNode == null;
+		return head == null;
 	}
 
-	private class DLNode {
-		private T data;
-		private DLNode previousNode;
-		private DLNode nextNode;
-
-		public DLNode() {
-			this(null);
+	public void display() {
+		Node current = head;
+		int index = 1;
+		while (current != null) {
+			System.out.println(index + ". " + current.data);
+			current = current.next;
+			index++;
 		}
+	}
 
-		public DLNode(T data) {
-			this(data, null);
+	public T[] getAll() {
+		@SuppressWarnings("unchecked")
+		T[] result = (T[]) new Object[size];
+		Node current = head;
+		int index = 0;
+		while (current != null) {
+			result[index] = current.data;
+			current = current.next;
+			index++;
 		}
+		return result;
+	}
 
-		public DLNode(T data, DLNode previousNode) {
-			this(data, previousNode, null);
-		}
-
-		public DLNode(T data, DLNode previousNode, DLNode nextNode) {
-			this.data = data;
-			this.previousNode = previousNode;
-			this.nextNode = nextNode;
-		}
-
-		public T getData() {
-			return data;
-		}
-
-		public void setData(T data) {
-			this.data = data;
-		}
-
-		public DLNode getPreviousNode() {
-			return previousNode;
-		}
-
-		public void setPreviousNode(DLNode previousNode) {
-			this.previousNode = previousNode;
-		}
-
-		public DLNode getNextNode() {
-			return nextNode;
-		}
-
-		public void setNextNode(DLNode nextNode) {
-			this.nextNode = nextNode;
-		}
+	public int size() {
+		return size;
 	}
 }

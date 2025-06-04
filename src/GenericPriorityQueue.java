@@ -1,38 +1,33 @@
-public class GenericPriorityQueue<T extends Comparable<? super T>> implements PriorityQueueInterface<T> {
+public class GenericPriorityQueue<T extends Comparable<T>> {
 	private GenericQueue<T> highPriorityQueue;
 	private GenericQueue<T> mediumPriorityQueue;
 	private GenericQueue<T> lowPriorityQueue;
 
 	public GenericPriorityQueue() {
-		highPriorityQueue = new GenericQueue<T>();
-		mediumPriorityQueue = new GenericQueue<T>();
-		lowPriorityQueue = new GenericQueue<T>();
+		this.highPriorityQueue = new GenericQueue<>();
+		this.mediumPriorityQueue = new GenericQueue<>();
+		this.lowPriorityQueue = new GenericQueue<>();
 	}
 
-	public void add(T newEntry) {
-		if (newEntry == null) {
-			throw new IllegalArgumentException("Item cannot be null");
-		}
-
-		String priority = determinePriority(newEntry);
-
+	public void offer(T item) {
+		String priority = determinePriority(item);
 		switch (priority.toLowerCase()) {
 			case "high":
-				highPriorityQueue.enqueue(newEntry);
+				highPriorityQueue.enqueue(item);
 				break;
 			case "medium":
-				mediumPriorityQueue.enqueue(newEntry);
+				mediumPriorityQueue.enqueue(item);
 				break;
 			case "low":
-				lowPriorityQueue.enqueue(newEntry);
+				lowPriorityQueue.enqueue(item);
 				break;
 			default:
-				lowPriorityQueue.enqueue(newEntry);
+				lowPriorityQueue.enqueue(item);
 				break;
 		}
 	}
 
-	public T remove() {
+	public T poll() {
 		if (!highPriorityQueue.isEmpty()) {
 			return highPriorityQueue.dequeue();
 		} else if (!mediumPriorityQueue.isEmpty()) {
@@ -40,24 +35,7 @@ public class GenericPriorityQueue<T extends Comparable<? super T>> implements Pr
 		} else if (!lowPriorityQueue.isEmpty()) {
 			return lowPriorityQueue.dequeue();
 		}
-		throw new RuntimeException("Priority queue is empty");
-	}
-
-	public void peek() {
-		T frontItem = null;
-		if (!highPriorityQueue.isEmpty()) {
-			frontItem = highPriorityQueue.getFront();
-		} else if (!mediumPriorityQueue.isEmpty()) {
-			frontItem = mediumPriorityQueue.getFront();
-		} else if (!lowPriorityQueue.isEmpty()) {
-			frontItem = lowPriorityQueue.getFront();
-		}
-
-		if (frontItem != null) {
-			System.out.println("Next item to be processed: " + frontItem);
-		} else {
-			System.out.println("Priority queue is empty");
-		}
+		return null;
 	}
 
 	public boolean isEmpty() {
@@ -66,114 +44,59 @@ public class GenericPriorityQueue<T extends Comparable<? super T>> implements Pr
 				lowPriorityQueue.isEmpty();
 	}
 
-	public int getSize() {
-		return countAllItems();
-	}
+public T[] getAll() {
+    // Calculate total size from all priority queues
+    int totalSize = highPriorityQueue.size() + mediumPriorityQueue.size() + lowPriorityQueue.size();
 
-	public void clear() {
-		highPriorityQueue.clear();
-		mediumPriorityQueue.clear();
-		lowPriorityQueue.clear();
-	}
+    // Handle empty case
+    if (totalSize == 0) {
+        @SuppressWarnings("unchecked")
+        T[] emptyArray = (T[]) new Object[0];
+        return emptyArray;
+    }
 
-	private int countAllItems() {
-		return countQueueItems(highPriorityQueue) +
-				countQueueItems(mediumPriorityQueue) +
-				countQueueItems(lowPriorityQueue);
-	}
+    // Determine component type from the first non-empty queue
+    Class<?> componentType;
+    if (highPriorityQueue.size() > 0) {
+        componentType = highPriorityQueue.getAll()[0].getClass();
+    } else if (mediumPriorityQueue.size() > 0) {
+        componentType = mediumPriorityQueue.getAll()[0].getClass();
+    } else {
+        componentType = lowPriorityQueue.getAll()[0].getClass();
+    }
 
-	public void offer(T item) {
-		add(item);
-	}
+    // Create a type-safe array
+    @SuppressWarnings("unchecked")
+    T[] result = (T[]) java.lang.reflect.Array.newInstance(componentType, totalSize);
 
-	public T poll() {
-		try {
-			return remove();
-		} catch (RuntimeException e) {
-			return null;
-		}
-	}
+    // Copy items from each queue in priority order
+    int index = 0;
+    for (T item : highPriorityQueue.getAll()) {
+        result[index++] = item;
+    }
+    for (T item : mediumPriorityQueue.getAll()) {
+        result[index++] = item;
+    }
+    for (T item : lowPriorityQueue.getAll()) {
+        result[index++] = item;
+    }
 
-	public T[] getAll() {
-		int totalSize = countAllItems();
-
-		if (totalSize == 0) {
-			return (T[]) new Comparable[0];
-		}
-
-		T[] allItems = (T[]) new Comparable[totalSize];
-		int index = 0;
-
-		index = addQueueItemsToArray(highPriorityQueue, allItems, index);
-
-		index = addQueueItemsToArray(mediumPriorityQueue, allItems, index);
-
-		addQueueItemsToArray(lowPriorityQueue, allItems, index);
-
-		return allItems;
-	}
-
-	public void display() {
-		T[] allItems = getAll();
-		for (int i = 0; i < allItems.length; i++) {
-			System.out.println((i + 1) + ". " + allItems[i]);
-		}
-	}
+    return result;
+}
 
 	private String determinePriority(T item) {
-		String itemString = item.toString().toLowerCase();
+		if (item instanceof Ticket) {
+			return ((Ticket) item).getPriority();
+		}
 
-		if (itemString.contains("high")) {
+		String str = item.toString().toLowerCase();
+		if (str.contains("high")) {
 			return "high";
-		} else if (itemString.contains("medium")) {
+		} else if (str.contains("medium")) {
 			return "medium";
-		} else if (itemString.contains("low")) {
+		} else if (str.contains("low")) {
 			return "low";
 		}
-
 		return "low";
 	}
-
-	private int addQueueItemsToArray(GenericQueue<T> queue, T[] array, int startIndex) {
-		if (queue.isEmpty()) {
-			return startIndex;
-		}
-
-		T[] tempItems = (T[]) new Comparable[countQueueItems(queue)];
-		int tempIndex = 0;
-		int arrayIndex = startIndex;
-
-		while (!queue.isEmpty()) {
-			T item = queue.dequeue();
-			tempItems[tempIndex++] = item;
-			array[arrayIndex++] = item;
-		}
-
-		for (int i = 0; i < tempIndex; i++) {
-			queue.enqueue(tempItems[i]);
-		}
-
-		return arrayIndex;
-	}
-
-	private int countQueueItems(GenericQueue<T> queue) {
-		if (queue.isEmpty()) {
-			return 0;
-		}
-
-		int count = 0;
-		T[] tempItems = (T[]) new Comparable[1000];
-
-		while (!queue.isEmpty()) {
-			tempItems[count] = queue.dequeue();
-			count++;
-		}
-
-		for (int i = 0; i < count; i++) {
-			queue.enqueue(tempItems[i]);
-		}
-
-		return count;
-	}
-
 }

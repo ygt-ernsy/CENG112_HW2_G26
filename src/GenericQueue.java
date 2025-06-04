@@ -1,116 +1,81 @@
 public class GenericQueue<T> {
-	private Node<T> firstNode;
-	private Node<T> lastNode;
+	private Node head;
+	private Node tail;
+	private int size;
+
+	private class Node {
+		T data;
+		Node next;
+
+		Node(T data) {
+			this.data = data;
+			this.next = null;
+		}
+	}
 
 	public GenericQueue() {
-		firstNode = null;
-		lastNode = null;
+		this.head = null;
+		this.tail = null;
+		this.size = 0;
 	}
 
-	public void enqueue(T newEntry) {
-		Node<T> newNode = new Node<T>(newEntry, null);
-
+	public void enqueue(T item) {
+		Node newNode = new Node(item);
 		if (isEmpty()) {
-			firstNode = newNode;
+			head = tail = newNode;
 		} else {
-			lastNode.setNext(newNode);
+			tail.next = newNode;
+			tail = newNode;
 		}
-
-		lastNode = newNode;
-	}
-
-	public T getFront() {
-		if (isEmpty()) {
-			throw new RuntimeException();
-		}
-
-		return firstNode.getData();
-	}
-
-	public boolean isEmpty() {
-		return firstNode == null && lastNode == null;
+		size++;
 	}
 
 	public T dequeue() {
-		T front = getFront();
-		assert firstNode != null;
-		firstNode.setData(null);
-		firstNode = firstNode.getNext();
-		if (firstNode == null) {
-			lastNode = null;
+		if (isEmpty()) {
+			return null;
 		}
-		return front;
+		T data = head.data;
+		head = head.next;
+		if (head == null) {
+			tail = null;
+		}
+		size--;
+		return data;
 	}
 
-	public void clear() {
-		firstNode = null;
-		lastNode = null;
+	public boolean isEmpty() {
+		return head == null;
 	}
 
 	public void display() {
-		if (isEmpty()) {
-			System.out.println("Queue is empty");
-			return;
-		}
-
-		Node<T> current = firstNode;
+		Node current = head;
 		int index = 1;
 		while (current != null) {
-			System.out.println(index + ". " + current.getData());
-			current = current.getNext();
+			System.out.println(index + ". " + current.data);
+			current = current.next;
 			index++;
 		}
 	}
 
 	public T[] getAll() {
-		if (isEmpty()) {
-			return (T[]) new Object[0];
+		if (size == 0) {
+			@SuppressWarnings("unchecked")
+			T[] emptyArray = (T[]) new Object[0];
+			return emptyArray;
 		}
 
-		int size = 0;
-		Node<T> current = firstNode;
+		@SuppressWarnings("unchecked")
+		T[] result = (T[]) java.lang.reflect.Array.newInstance(head.data.getClass(), size);
+		Node current = head;
+		int index = 0;
 		while (current != null) {
-			size++;
-			current = current.getNext();
+			result[index++] = current.data;
+			current = current.next;
 		}
-
-		T[] array = (T[]) new Object[size];
-		current = firstNode;
-		for (int i = 0; i < size; i++) {
-			array[i] = current.getData();
-			current = current.getNext();
-		}
-
-		return array;
+		return result;
 	}
 
-	private class Node<T> {
-		private T data;
-		private Node next;
-
-		private Node(T data) {
-			this(data, null);
-		}
-
-		private Node(T data, Node next) {
-			this.data = data;
-			this.next = next;
-		}
-
-		private T getData() {
-			return data;
-		}
-
-		private Node getNext() {
-			return next;
-		}
-
-		private void setNext(Node next) {
-			this.next = next;
-		}
-
-		private void setData(T data) {
-			this.data = data;
-		}
+	public int size() {
+		return size;
 	}
 }
