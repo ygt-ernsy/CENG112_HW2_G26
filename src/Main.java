@@ -1,6 +1,6 @@
 public class Main {
 	public static void main(String[] args) {
-		String filename = "example_commands.csv";
+		String filename = "files/example_commands.csv";
 
 		Command[] commands = FileIo.readCommands(filename);
 
